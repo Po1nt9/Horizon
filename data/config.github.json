@@ -146,5 +146,19 @@
       }
     },
     "headers": ""
+  },
+  "email": {
+    "enabled": true,
+    "smtp_server": "smtp.qq.com",
+    "smtp_port": 465,
+    "smtp_username": null,
+    "imap_enabled": true,
+    "imap_server": "imap.qq.com",
+    "imap_port": 993,
+    "email_address": "zhu.point9@qq.com",
+    "password_env": "EMAIL_PASSWORD",
+    "sender_name": "Horizon Daily",
+    "subscribe_keyword": "SUBSCRIBE",
+    "unsubscribe_keyword": "UNSUBSCRIBE"
   }
 }
