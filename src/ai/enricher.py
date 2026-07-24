@@ -236,6 +236,10 @@ class ContentEnricher:
         item.metadata["background"] = item.metadata.get("background_en", "")
         item.metadata["community_discussion"] = item.metadata.get("community_discussion_en", "")
 
+        # Language guard: if zh summary is missing but en exists, translate it
+        if item.metadata.get("detailed_summary_en") and not item.metadata.get("detailed_summary_zh"):
+            await self._translate_missing_zh_summary(item)
+
     async def _translate_item(self, item: ContentItem) -> None:
         """Lightweight translation fallback: when full enrichment fails, at least
         translate the title and summary to Chinese so the item is not dropped."""
@@ -255,5 +259,22 @@ class ContentEnricher:
                     item.metadata["title_zh"] = result["title_zh"]
                 if result.get("summary_zh"):
                     item.metadata["detailed_summary_zh"] = result["summary_zh"]
+        except Exception:
+            pass
+
+    async def _translate_missing_zh_summary(self, item: ContentItem) -> None:
+        """Language guard: when enrichment produced English summary but no Chinese,
+        translate the English summary to Chinese so zh rendering doesn't fall back to English."""
+        try:
+            en_summary = item.metadata.get("detailed_summary_en", "")
+            if not en_summary:
+                return
+            response = await self.client.complete(
+                system="You are a translator. Translate the following English text to Simplified Chinese (简体中文). Return only the translated text, no JSON, no extra explanation.",
+                user=en_summary,
+            )
+            translated = response.strip()
+            if translated:
+                item.metadata["detailed_summary_zh"] = translated
         except Exception:
             pass
